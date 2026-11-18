@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Task Details{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px;">
+    <h2 class="mb-4">Task Details</h2>
+    
+    <div class="card p-4 shadow-sm border-0">
+        <h4 class="mb-3">{{ object.content }}</h4>
+        <p><strong>Status:</strong> 
+            {% if object.is_done %}
+                <span class="text-success">Done</span>
+            {% else %}
+                <span class="text-danger">Not done</span>
+            {% endif %}
+        </p>
+        <p><strong>Created:</strong> {{ object.datetime }}</p>
+        <p><strong>Deadline:</strong> {{ object.deadline }}</p>
+        <p><strong>Tags:</strong> 
+            {% for tag in object.tags.all %}
+                <span class="badge bg-secondary">{{ tag.name }}</span>
+            {% empty %}
+                None
+            {% endfor %}
+        </p>
+        
+        <div class="mt-3">
+            <a href="{% url 'todolist:update_todolist' object.pk %}" class="btn btn-primary btn-sm">Edit</a>
+            <a href="{% url 'todolist:delete_todolist' object.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            <a href="{% url 'todolist:home' %}" class="btn btn-secondary btn-sm">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
