@@ -1,6 +1,6 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect
 from django.db.models import Count
+from django.views.decorators.http import require_POST
 from django.views.generic import (
     CreateView,
     UpdateView,
@@ -13,17 +13,14 @@ from todolist.forms import TaskForm, TagForm
 from todolist.models import Task, Tag
 
 
-def home(request):
-    task_list = Task.objects.prefetch_related("tags").all()
-    paginator = Paginator(task_list, 3)
-    page_number = request.GET.get("page")
-    tasks = paginator.get_page(page_number)
-    content = {
-        "tasks": tasks,
-    }
-    return render(request, "todolist/home.html", content)
+class TaskListView(ListView):
+    model = Task
+    template_name = "todolist/home.html"
+    context_object_name = "tasks"
+    paginate_by = 3
 
 
+@require_POST
 def toggle_task_status(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task.is_done = not task.is_done
@@ -41,27 +38,27 @@ class TagListView(ListView):
         return Tag.objects.annotate(tasks_count=Count("tasks"))
 
 
-class CreateTodolist(CreateView):
+class TaskCreateView(CreateView):
     model = Task
     form_class = TaskForm
     template_name = "todolist/task_form.html"
     success_url = reverse_lazy("todolist:home")
 
 
-class UpdateTodolist(UpdateView):
+class TaskUpdateView(UpdateView):
     model = Task
     form_class = TaskForm
     template_name = "todolist/task_form.html"
     success_url = reverse_lazy("todolist:home")
 
 
-class DeleteTodolist(DeleteView):
+class TaskDeleteView(DeleteView):
     model = Task
     template_name = "todolist/task_confirm_delete.html"
     success_url = reverse_lazy("todolist:home")
 
 
-class DetailTodolist(DetailView):
+class TaskDetailView(DetailView):
     model = Task
     template_name = "todolist/task_detail.html"
 
